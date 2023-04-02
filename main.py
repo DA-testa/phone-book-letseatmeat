@@ -1,47 +1,33 @@
 # python3
 
 class Query:
-    def __init__(self, query):
-        self.type = query[0]
-        self.number = int(query[1])
-        if self.type == 'add':
-            self.name = query[2]
+    def __init__(self, q):
+        self.op = q[0]
+        self.num = int(q[1])
+        if self.op == 'add':
+            self.name = q[2]
 
 def read_queries():
     n = int(input())
-    return [Query(input().split()) for i in range(n)]
+    return [Query(input().split()) for _ in range(n)]
 
-def write_responses(result):
-    print('\n'.join(result))
+def write_output(output):
+    print('\n'.join(output))
 
 def process_queries(queries):
-    result = []
-    # Keep list of all existing (i.e. not deleted yet) contacts.
-    contacts = []
-    for cur_query in queries:
-        if cur_query.type == 'add':
-            # if we already have contact with such number,
-            # we should rewrite contact's name
-            for contact in contacts:
-                if contact.number == cur_query.number:
-                    contact.name = cur_query.name
-                    break
-            else: # otherwise, just add it
-                contacts.append(cur_query)
-        elif cur_query.type == 'del':
-            for j in range(len(contacts)):
-                if contacts[j].number == cur_query.number:
-                    contacts.pop(j)
-                    break
+    output = []
+    phonebook = {q.num: q.name for q in queries if q.op == 'add'}
+    for query in queries:
+        if query.op == 'add':
+            phonebook[query.num] = query.name
+        elif query.op == 'del':
+            phonebook.pop(query.num, None)
         else:
-            response = 'not found'
-            for contact in contacts:
-                if contact.number == cur_query.number:
-                    response = contact.name
-                    break
-            result.append(response)
-    return result
+            response = phonebook.get(query.num, 'not found')
+            output.append(response)
+    return output
 
 if __name__ == '__main__':
-    write_responses(process_queries(read_queries()))
-
+    queries = read_queries()
+    output = process_queries(queries)
+    write_output(output)
